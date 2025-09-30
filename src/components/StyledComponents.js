@@ -2,17 +2,25 @@ import styled from 'styled-components';
 import { motion } from 'framer-motion';
 
 export const Container = styled.div`
-  max-width: 600px;
+  max-width: 720px;
   margin: 0 auto;
-  padding: ${props => props.theme.spacing.lg};
+  padding: ${props => props.theme.spacing.xl};
   min-height: 100vh;
+  background: ${props => props.theme.colors.surface};
+  border-radius: ${props => props.theme.borderRadius.lg};
+  box-shadow: ${props => props.theme.shadows.xl};
+  margin-top: ${props => props.theme.spacing.lg};
+  margin-bottom: ${props => props.theme.spacing.lg};
   
   @media (max-width: 768px) {
-    padding: ${props => props.theme.spacing.md};
+    margin: ${props => props.theme.spacing.md};
+    padding: ${props => props.theme.spacing.lg};
+    border-radius: ${props => props.theme.borderRadius.md};
   }
   
   @media (max-width: 480px) {
-    padding: ${props => props.theme.spacing.sm};
+    margin: ${props => props.theme.spacing.sm};
+    padding: ${props => props.theme.spacing.md};
   }
 `;
 
@@ -22,21 +30,32 @@ export const Header = styled.div`
 `;
 
 export const Title = styled.h1`
-  font-size: 2.5rem;
+  font-size: 3rem;
   font-weight: 700;
-  color: ${props => props.theme.colors.text};
+  color: ${props => props.theme.colors.primary};
   margin-bottom: ${props => props.theme.spacing.md};
-  background: linear-gradient(135deg, ${props => props.theme.colors.primary}, ${props => props.theme.colors.secondary});
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  text-shadow: 0 2px 4px ${props => props.theme.colors.shadow};
+  letter-spacing: -0.02em;
+  position: relative;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(90deg, ${props => props.theme.colors.primary}, ${props => props.theme.colors.accent});
+    border-radius: 2px;
+  }
   
   @media (max-width: 768px) {
-    font-size: 2rem;
+    font-size: 2.5rem;
   }
   
   @media (max-width: 480px) {
-    font-size: 1.5rem;
+    font-size: 2rem;
   }
 `;
 
@@ -72,15 +91,23 @@ export const ControlsContainer = styled.div`
 export const SearchInput = styled.input`
   flex: 1;
   min-width: 200px;
-  padding: ${props => props.theme.spacing.sm};
-  border: 2px solid ${props => props.theme.colors.border};
-  border-radius: ${props => props.theme.borderRadius.md};
+  padding: ${props => props.theme.spacing.md};
+  border: 1px solid ${props => props.theme.colors.borderLight};
+  border-radius: ${props => props.theme.borderRadius.lg};
   background: ${props => props.theme.colors.surface};
   color: ${props => props.theme.colors.text};
   font-size: 1rem;
+  box-shadow: ${props => props.theme.shadows.sm};
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   
   &::placeholder {
-    color: ${props => props.theme.colors.textSecondary};
+    color: ${props => props.theme.colors.textMuted};
+  }
+  
+  &:focus {
+    border-color: ${props => props.theme.colors.primary};
+    box-shadow: ${props => props.theme.shadows.md};
+    transform: translateY(-1px);
   }
   
   @media (max-width: 768px) {
@@ -89,22 +116,26 @@ export const SearchInput = styled.input`
 `;
 
 export const Select = styled.select`
-  padding: ${props => props.theme.spacing.sm};
-  border: 2px solid ${props => props.theme.colors.border};
-  border-radius: ${props => props.theme.borderRadius.md};
+  padding: ${props => props.theme.spacing.md};
+  border: 1px solid ${props => props.theme.colors.borderLight};
+  border-radius: ${props => props.theme.borderRadius.lg};
   background: ${props => props.theme.colors.surface};
   color: ${props => props.theme.colors.text};
   font-size: 1rem;
   cursor: pointer;
+  box-shadow: ${props => props.theme.shadows.sm};
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   
   &:focus {
     border-color: ${props => props.theme.colors.primary};
+    box-shadow: ${props => props.theme.shadows.md};
+    transform: translateY(-1px);
   }
 `;
 
 export const FormContainer = styled.form`
   display: flex;
-  gap: ${props => props.theme.spacing.sm};
+  gap: ${props => props.theme.spacing.md};
   margin-bottom: ${props => props.theme.spacing.lg};
   
   @media (max-width: 480px) {
@@ -115,48 +146,79 @@ export const FormContainer = styled.form`
 export const FormInput = styled.input`
   flex: 1;
   padding: ${props => props.theme.spacing.md};
-  border: 2px solid ${props => props.theme.colors.border};
-  border-radius: ${props => props.theme.borderRadius.md};
+  border: 1px solid ${props => props.theme.colors.borderLight};
+  border-radius: ${props => props.theme.borderRadius.lg};
   background: ${props => props.theme.colors.surface};
   color: ${props => props.theme.colors.text};
   font-size: 1rem;
+  box-shadow: ${props => props.theme.shadows.sm};
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   
   &::placeholder {
-    color: ${props => props.theme.colors.textSecondary};
+    color: ${props => props.theme.colors.textMuted};
+  }
+  
+  &:focus {
+    border-color: ${props => props.theme.colors.primary};
+    box-shadow: ${props => props.theme.shadows.md};
+    transform: translateY(-1px);
   }
 `;
 
 export const Button = styled(motion.button)`
-  padding: ${props => props.theme.spacing.md} ${props => props.theme.spacing.lg};
+  padding: ${props => props.theme.spacing.md} ${props => props.theme.spacing.xl};
   border: none;
-  border-radius: ${props => props.theme.borderRadius.md};
+  border-radius: ${props => props.theme.borderRadius.lg};
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  box-shadow: ${props => props.theme.shadows.sm};
+  box-shadow: ${props => props.theme.shadows.md};
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+  }
+  
+  &:hover::before {
+    left: 100%;
+  }
   
   &.primary {
-    background: ${props => props.theme.colors.primary};
+    background: linear-gradient(135deg, ${props => props.theme.colors.primary}, ${props => props.theme.colors.secondary});
     color: white;
+    border: 1px solid ${props => props.theme.colors.primary};
   }
   
   &.secondary {
-    background: ${props => props.theme.colors.secondary};
+    background: linear-gradient(135deg, ${props => props.theme.colors.secondary}, ${props => props.theme.colors.accent});
     color: white;
+    border: 1px solid ${props => props.theme.colors.secondary};
   }
   
   &.danger {
-    background: ${props => props.theme.colors.danger};
+    background: linear-gradient(135deg, ${props => props.theme.colors.danger}, #FF4757);
     color: white;
+    border: 1px solid ${props => props.theme.colors.danger};
   }
   
   &.warning {
-    background: ${props => props.theme.colors.warning};
+    background: linear-gradient(135deg, ${props => props.theme.colors.warning}, #FFA726);
     color: white;
+    border: 1px solid ${props => props.theme.colors.warning};
   }
   
   &:hover {
-    box-shadow: ${props => props.theme.shadows.md};
+    box-shadow: ${props => props.theme.shadows.lg};
+    transform: translateY(-2px);
   }
 `;
 
@@ -169,21 +231,46 @@ export const TodoList = styled.div`
 export const TodoItem = styled(motion.div)`
   display: flex;
   align-items: center;
-  gap: ${props => props.theme.spacing.sm};
-  padding: ${props => props.theme.spacing.md};
+  gap: ${props => props.theme.spacing.md};
+  padding: ${props => props.theme.spacing.lg};
   background: ${props => props.theme.colors.surface};
-  border: 2px solid ${props => props.theme.colors.border};
-  border-radius: ${props => props.theme.borderRadius.md};
+  border: 1px solid ${props => props.theme.colors.borderLight};
+  border-radius: ${props => props.theme.borderRadius.lg};
   box-shadow: ${props => props.theme.shadows.sm};
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, ${props => props.theme.colors.primary}, ${props => props.theme.colors.accent});
+    border-radius: 2px 0 0 2px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
   
   &.completed {
-    background: ${props => props.theme.colors.background};
-    opacity: 0.7;
+    background: ${props => props.theme.colors.surfaceElevated};
+    opacity: 0.8;
+    border-color: ${props => props.theme.colors.border};
+    
+    &::before {
+      opacity: 1;
+    }
   }
   
   &:hover {
     box-shadow: ${props => props.theme.shadows.md};
+    transform: translateY(-1px);
+    border-color: ${props => props.theme.colors.border};
+    
+    &::before {
+      opacity: 1;
+    }
   }
 `;
 
@@ -226,25 +313,32 @@ export const ButtonGroup = styled.div`
 `;
 
 export const SmallButton = styled(motion.button)`
-  padding: ${props => props.theme.spacing.xs} ${props => props.theme.spacing.sm};
+  padding: ${props => props.theme.spacing.sm} ${props => props.theme.spacing.md};
   border: none;
-  border-radius: ${props => props.theme.borderRadius.sm};
+  border-radius: ${props => props.theme.borderRadius.md};
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
+  box-shadow: ${props => props.theme.shadows.sm};
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   
   &.primary {
-    background: ${props => props.theme.colors.primary};
+    background: linear-gradient(135deg, ${props => props.theme.colors.primary}, ${props => props.theme.colors.secondary});
     color: white;
   }
   
   &.secondary {
-    background: ${props => props.theme.colors.secondary};
+    background: linear-gradient(135deg, ${props => props.theme.colors.secondary}, ${props => props.theme.colors.accent});
     color: white;
   }
   
   &.danger {
-    background: ${props => props.theme.colors.danger};
+    background: linear-gradient(135deg, ${props => props.theme.colors.danger}, #FF4757);
     color: white;
+  }
+  
+  &:hover {
+    box-shadow: ${props => props.theme.shadows.md};
+    transform: translateY(-1px);
   }
 `;
