@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import styled from 'styled-components';
+import StreakDisplay from './StreakDisplay.js';
+import { calculateStreak, getStreakStatus, getNextMilestone } from '../utils/streakManager.js';
 import {
   TodoItem,
   Checkbox,
@@ -166,6 +168,14 @@ function Todo({ todos, toggleTodo, deleteTodo, editTodo }) {
                      todo.repeat === 'weekly' ? '毎週' : 
                      todo.repeat === 'monthly' ? '毎月' : todo.repeat}
               </RepeatBadge>
+            )}
+            
+            {todo.repeat !== 'none' && (
+              <StreakDisplay
+                streak={calculateStreak(todo, todo.completionHistory)}
+                nextMilestone={getNextMilestone(calculateStreak(todo, todo.completionHistory))}
+                status={getStreakStatus(calculateStreak(todo, todo.completionHistory))}
+              />
             )}
           </TodoDetails>
           <ButtonGroup>

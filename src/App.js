@@ -7,6 +7,7 @@ import { GlobalStyles } from './components/GlobalStyles.js';
 import { lightTheme, darkTheme } from './theme.js';
 import { notificationManager } from './utils/notifications.js';
 import { createRecurringTask, checkOverdueTasks, checkUrgentTasks } from './utils/recurringTasks.js';
+import { updateCompletionHistory, getStreakStats } from './utils/streakManager.js';
 import {
   Container,
   Header,
@@ -17,6 +18,40 @@ import {
   Select,
   TodoList
 } from './components/StyledComponents.js';
+
+const StatsContainer = styled.div`
+  display: flex;
+  gap: ${props => props.theme.spacing.md};
+  margin-bottom: ${props => props.theme.spacing.lg};
+  flex-wrap: wrap;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+`;
+
+const StatCard = styled.div`
+  flex: 1;
+  padding: ${props => props.theme.spacing.md};
+  background: ${props => props.theme.colors.surface};
+  border: 2px solid ${props => props.theme.colors.border};
+  border-radius: ${props => props.theme.borderRadius.md};
+  text-align: center;
+  box-shadow: ${props => props.theme.shadows.sm};
+  
+  .stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: ${props => props.theme.colors.primary};
+    margin-bottom: ${props => props.theme.spacing.xs};
+  }
+  
+  .stat-label {
+    font-size: 0.875rem;
+    color: ${props => props.theme.colors.textSecondary};
+    font-weight: 500;
+  }
+`;
 
 function App() {
   const [todos, setTodos] = useState(() => {
@@ -104,14 +139,29 @@ function App() {
     const todo = todos.find(t => t.id === id);
     if (!todo) return;
 
-    const newTodos = todos.map(t => 
-      t.id === id ? { ...t, completed: !t.completed } : t
-    );
+    const isCompleting = !todo.completed;
+    
+    const newTodos = todos.map(t => {
+      if (t.id === id) {
+        const updatedTodo = { ...t, completed: !t.completed };
+        
+        // 連続達成履歴を更新
+        if (t.repeat && t.repeat !== 'none') {
+          updatedTodo.completionHistory = updateCompletionHistory(updatedTodo, isCompleting);
+        }
+        
+        return updatedTodo;
+      }
+      return t;
+    });
 
     // タスクが完了された場合
-    if (!todo.completed && todo.repeat !== 'none') {
-      const recurringTask = createRecurringTask({ ...todo, completed: true });
+    if (isCompleting && todo.repeat !== 'none') {
+      const completedTodo = newTodos.find(t => t.id === id);
+      const recurringTask = createRecurringTask(completedTodo);
       if (recurringTask) {
+        // 新しいタスクの完了履歴は空で開始
+        recurringTask.completionHistory = [];
         newTodos.push(recurringTask);
         // 新しいタスクの通知もスケジュール
         if (recurringTask.dueDate) {
@@ -121,7 +171,7 @@ function App() {
     }
 
     // 完了解除された場合は通知を再スケジュール
-    if (todo.completed && todo.dueDate) {
+    if (!isCompleting && todo.dueDate) {
       notificationManager.scheduleNotification({ ...todo, completed: false });
     }
 
@@ -188,6 +238,24 @@ function App() {
         </ControlsContainer>
         
         <TodoForm addTodo={addTodo} />
+        
+        {/* 連続達成統計 */}
+        {getStreakStats(todos).totalRecurring > 0 && (
+          <StatsContainer>
+            <StatCard>
+              <div className="stat-number">{getStreakStats(todos).activeStreaks}</div>
+              <div className="stat-label">アクティブ連続達成</div>
+            </StatCard>
+            <StatCard>
+              <div className="stat-number">{getStreakStats(todos).longestStreak}</div>
+              <div className="stat-label">最長連続達成</div>
+            </StatCard>
+            <StatCard>
+              <div className="stat-number">{getStreakStats(todos).averageStreak}</div>
+              <div className="stat-label">平均連続達成</div>
+            </StatCard>
+          </StatsContainer>
+        )}
         
         <TodoList>
           <AnimatePresence>
