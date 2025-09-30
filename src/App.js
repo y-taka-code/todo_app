@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import { AnimatePresence } from 'framer-motion';
 import TodoForm from './components/TodoForm.js';
 import Todo from './components/Todo.js';
 import { GlobalStyles } from './components/GlobalStyles.js';
 import { lightTheme, darkTheme } from './theme.js';
+import { notificationManager } from './utils/notifications.js';
+import { createRecurringTask, checkOverdueTasks, checkUrgentTasks } from './utils/recurringTasks.js';
 import {
   Container,
   Header,
@@ -37,18 +39,53 @@ function App() {
   };
 
   // todosをローカルストレージに保存
-  React.useEffect(() => {
+  useEffect(() => {
     localStorage.setItem('todos', JSON.stringify(todos));
   }, [todos]);
 
-  const addTodo = (text) => {
-    const newTodos = [...todos, { 
-      text, 
-      completed: false, 
+  // 通知の初期化と定期チェック
+  useEffect(() => {
+    // 既存のタスクの通知をスケジュール
+    todos.forEach(todo => {
+      if (todo.dueDate && !todo.completed) {
+        notificationManager.scheduleNotification(todo);
+      }
+    });
+
+    // 1分ごとに期限切れタスクをチェック
+    const interval = setInterval(() => {
+      const overdueTasks = checkOverdueTasks(todos);
+      const urgentTasks = checkUrgentTasks(todos);
+      
+      // 期限切れタスクがある場合の処理（必要に応じて）
+      if (overdueTasks.length > 0) {
+        console.log('期限切れタスク:', overdueTasks.length);
+      }
+    }, 60000); // 1分
+
+    return () => {
+      clearInterval(interval);
+      notificationManager.clearAllNotifications();
+    };
+  }, [todos]);
+
+  const addTodo = (todoData) => {
+    const newTodo = {
+      text: typeof todoData === 'string' ? todoData : todoData.text,
+      completed: false,
+      dueDate: typeof todoData === 'string' ? null : todoData.dueDate,
+      repeat: typeof todoData === 'string' ? 'none' : todoData.repeat,
       createdAt: new Date().toISOString(),
       id: Date.now()
-    }];
+    };
+    
+    const newTodos = [...todos, newTodo];
     setTodos(newTodos);
+    
+    // 通知をスケジュール
+    if (newTodo.dueDate) {
+      notificationManager.scheduleNotification(newTodo);
+    }
   };
 
   const deleteTodo = (id) => {
@@ -64,9 +101,30 @@ function App() {
   };
 
   const toggleTodoById = (id) => {
-    const newTodos = todos.map(todo => 
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+    const todo = todos.find(t => t.id === id);
+    if (!todo) return;
+
+    const newTodos = todos.map(t => 
+      t.id === id ? { ...t, completed: !t.completed } : t
     );
+
+    // タスクが完了された場合
+    if (!todo.completed && todo.repeat !== 'none') {
+      const recurringTask = createRecurringTask({ ...todo, completed: true });
+      if (recurringTask) {
+        newTodos.push(recurringTask);
+        // 新しいタスクの通知もスケジュール
+        if (recurringTask.dueDate) {
+          notificationManager.scheduleNotification(recurringTask);
+        }
+      }
+    }
+
+    // 完了解除された場合は通知を再スケジュール
+    if (todo.completed && todo.dueDate) {
+      notificationManager.scheduleNotification({ ...todo, completed: false });
+    }
+
     setTodos(newTodos);
   };
 
